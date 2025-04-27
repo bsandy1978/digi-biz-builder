@@ -15,6 +15,7 @@ import Editor from "./pages/Editor";
 import ViewCard from "./pages/ViewCard";
 import Admin from "./pages/Admin";
 import ActivateNFC from "./pages/ActivateNFC";
+import ManageCards from "./pages/dashboard/ManageCards";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard/cards" element={<ManageCards />} />
               <Route path="/editor/:id" element={<Editor />} />
               <Route path="/card/:slug" element={<ViewCard />} />
               <Route path="/admin" element={<Admin />} />

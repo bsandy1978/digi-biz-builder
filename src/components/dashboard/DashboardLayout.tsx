@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -14,21 +13,29 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const { isAdmin } = useAuth();
   
   const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect width="7" height="9" x="3" y="3" rx="1" />
-        <rect width="7" height="5" x="14" y="3" rx="1" />
-        <rect width="7" height="9" x="14" y="12" rx="1" />
-        <rect width="7" height="5" x="3" y="16" rx="1" />
-      </svg>
-    ) },
-    { name: "My Cards", href: "/dashboard/cards", icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect width="18" height="18" x="3" y="3" rx="2" />
-        <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2" />
-        <path d="M3 11h3c.8 0 1.6.3 2.1.9l1.1.9c1.6 1.6 4.1 1.6 5.7 0l1.1-.9c.5-.5 1.3-.9 2.1-.9h3" />
-      </svg>
-    ) },
+    { 
+      name: "Dashboard", 
+      href: "/dashboard", 
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect width="7" height="9" x="3" y="3" rx="1" />
+          <rect width="7" height="5" x="14" y="3" rx="1" />
+          <rect width="7" height="9" x="14" y="12" rx="1" />
+          <rect width="7" height="5" x="3" y="16" rx="1" />
+        </svg>
+      ) 
+    },
+    { 
+      name: "Manage Cards", 
+      href: "/dashboard/cards", 
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect width="18" height="18" x="3" y="3" rx="2" />
+          <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2" />
+          <path d="M3 11h3c.8 0 1.6.3 2.1.9l1.1.9c1.6 1.6 4.1 1.6 5.7 0l1.1-.9c.5-.5 1.3-.9 2.1-.9h3" />
+        </svg>
+      ) 
+    },
     { name: "Analytics", href: "/dashboard/analytics", icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 3v18h18" />
@@ -43,7 +50,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     ) }
   ];
 
-  // Admin navigation items
   const adminNavigation = [
     { name: "Admin Dashboard", href: "/admin", icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -65,7 +71,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
       <div className="hidden md:flex md:w-64 md:flex-col">
         <div className="flex flex-col flex-grow border-r bg-white pt-5 pb-4 overflow-y-auto">
           <div className="flex items-center flex-shrink-0 px-4">
@@ -136,7 +141,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </div>
       </div>
       
-      {/* Mobile sidebar button */}
       <div className="md:hidden fixed bottom-4 right-4 z-50">
         <Button 
           className="flex items-center justify-center" 
@@ -158,7 +162,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </Button>
       </div>
       
-      {/* Mobile sidebar */}
       <div 
         id="mobile-sidebar" 
         className="fixed inset-y-0 left-0 -translate-x-full transform transition-transform duration-300 ease-in-out z-40 md:hidden"
@@ -266,7 +269,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </div>
       </div>
       
-      {/* Main content */}
       <div className="flex flex-1 flex-col">
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           {children}
