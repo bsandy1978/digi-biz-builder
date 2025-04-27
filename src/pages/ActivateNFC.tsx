@@ -11,7 +11,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 const ActivateNFC = () => {
-  const [nfcCode, setNfcCode] = useState("");
+  const [activationCode, setActivationCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { activateNFCCard } = useAuth();
   const navigate = useNavigate();
@@ -21,17 +21,24 @@ const ActivateNFC = () => {
     setIsSubmitting(true);
 
     try {
-      await activateNFCCard(nfcCode);
+      // Check if activation code follows the pattern CARD-XXXXXX
+      const isValidCode = /^CARD-[0-9A-Z]{6}$/.test(activationCode);
+      
+      if (!isValidCode) {
+        throw new Error("Invalid activation code format");
+      }
+
+      await activateNFCCard(activationCode);
       toast({
-        title: "NFC Card Activated",
-        description: "Your card has been successfully linked to your account.",
+        title: "Card Activated",
+        description: "Your digital business card has been successfully activated. You can now customize it.",
       });
-      navigate("/dashboard");
+      navigate("/editor/new");
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Activation Failed",
-        description: "Invalid or already used NFC code. Please try again.",
+        description: error instanceof Error ? error.message : "Invalid or already used activation code. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -51,25 +58,26 @@ const ActivateNFC = () => {
                 <path d="M15 12v3m-3-3v3m-3-3v3" />
                 <rect width="14" height="18" x="5" y="3" rx="2" />
               </svg>
-              Activate NFC Card
+              Activate Your Business Card
             </CardTitle>
             <CardDescription>
-              Enter your NFC card activation code to link it with your profile
+              Enter your card's activation code to set up your digital profile
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="nfcCode">NFC Activation Code</Label>
+                <Label htmlFor="activationCode">Activation Code</Label>
                 <Input
-                  id="nfcCode"
-                  placeholder="Enter your activation code"
-                  value={nfcCode}
-                  onChange={(e) => setNfcCode(e.target.value)}
+                  id="activationCode"
+                  placeholder="Enter your activation code (e.g., CARD-ABC123)"
+                  value={activationCode}
+                  onChange={(e) => setActivationCode(e.target.value.toUpperCase())}
+                  pattern="CARD-[0-9A-Z]{6}"
                   required
                 />
                 <p className="text-sm text-muted-foreground">
-                  You can find this code on your physical NFC card
+                  You can find this code on your physical NFC business card package
                 </p>
               </div>
               

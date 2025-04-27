@@ -1,4 +1,3 @@
-
 import { BusinessCard } from "@/data/mockData";
 
 export const generateSlug = (name: string): string => {
@@ -79,4 +78,16 @@ export const getInitials = (name: string): string => {
     .join('')
     .toUpperCase()
     .slice(0, 2);
+};
+
+export const generateUniqueCode = (): string => {
+  const prefix = 'CARD';
+  const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let result = `${prefix}-`;
+  
+  for (let i = 0; i < 6; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  
+  return result;
 };
