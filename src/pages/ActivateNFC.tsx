@@ -25,20 +25,20 @@ const ActivateNFC = () => {
       const isValidCode = /^CARD-[0-9A-Z]{6}$/.test(activationCode);
       
       if (!isValidCode) {
-        throw new Error("Invalid activation code format");
+        throw new Error("Please enter a valid activation code (format: CARD-XXXXXX)");
       }
 
       await activateNFCCard(activationCode);
       toast({
-        title: "Card Activated",
-        description: "Your digital business card has been successfully activated. You can now customize it.",
+        title: "Card Claimed Successfully!",
+        description: "Your digital business card has been activated. You can now customize it.",
       });
       navigate("/editor/new");
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Activation Failed",
-        description: error instanceof Error ? error.message : "Invalid or already used activation code. Please try again.",
+        description: error instanceof Error ? error.message : "Invalid or already claimed activation code. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -58,10 +58,10 @@ const ActivateNFC = () => {
                 <path d="M15 12v3m-3-3v3m-3-3v3" />
                 <rect width="14" height="18" x="5" y="3" rx="2" />
               </svg>
-              Activate Your Business Card
+              Claim Your Business Card
             </CardTitle>
             <CardDescription>
-              Enter your card's activation code to set up your digital profile
+              Enter your card's activation code to claim and set up your digital profile
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -76,9 +76,10 @@ const ActivateNFC = () => {
                   pattern="CARD-[0-9A-Z]{6}"
                   required
                 />
-                <p className="text-sm text-muted-foreground">
-                  You can find this code on your physical NFC business card package
-                </p>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p>You can find this code on your physical NFC business card package</p>
+                  <p>Format: CARD-XXXXXX (where X can be numbers or letters)</p>
+                </div>
               </div>
               
               <Button 
@@ -89,10 +90,10 @@ const ActivateNFC = () => {
                 {isSubmitting ? (
                   <>
                     <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-b-transparent"></span>
-                    Activating...
+                    Claiming Card...
                   </>
                 ) : (
-                  "Activate Card"
+                  "Claim Your Card"
                 )}
               </Button>
             </form>
