@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import Editor from "./pages/Editor";
 import ViewCard from "./pages/ViewCard";
 import Admin from "./pages/Admin";
+import ActivateNFC from "./pages/ActivateNFC";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/editor/:id" element={<Editor />} />
               <Route path="/card/:slug" element={<ViewCard />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/activate-nfc" element={<ActivateNFC />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>

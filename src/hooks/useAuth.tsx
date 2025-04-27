@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from "@/components/ui/use-toast";
 
@@ -9,6 +8,7 @@ export interface User {
   email: string;
   avatar: string;
   role: 'user' | 'admin';
+  nfcCardId?: string;
 }
 
 // Define the auth context type
@@ -20,6 +20,7 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  activateNFCCard: (nfcCode: string) => Promise<void>;
 }
 
 // Create the auth context
@@ -140,6 +141,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
+  // Mock NFC card activation function
+  const activateNFCCard = async (nfcCode: string) => {
+    try {
+      setLoading(true);
+      // Simulating API call to validate and activate NFC card
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (nfcCode.length !== 8) {
+        throw new Error("Invalid NFC code");
+      }
+
+      if (user) {
+        const updatedUser = {
+          ...user,
+          nfcCardId: nfcCode,
+        };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -149,7 +176,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         googleLogin,
         logout,
         isAuthenticated: !!user,
-        isAdmin: user?.role === 'admin'
+        isAdmin: user?.role === 'admin',
+        activateNFCCard,
       }}
     >
       {children}
