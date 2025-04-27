@@ -75,7 +75,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <div className="flex flex-col flex-grow border-r bg-white pt-5 pb-4 overflow-y-auto">
           <div className="flex items-center flex-shrink-0 px-4">
             <Link to="/" className="font-bold text-xl text-brand-600">
-              CardFolio
+              TBKM
             </Link>
           </div>
           <div className="mt-8 flex-grow flex flex-col">

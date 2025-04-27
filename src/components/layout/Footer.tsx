@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="font-bold text-xl text-brand-600">
-              CardFolio
+              TBKM
             </Link>
             <p className="mt-2 text-sm text-muted-foreground">
               Create and share beautiful digital business cards in seconds.
@@ -75,7 +75,7 @@ const Footer = () => {
         <div className="mt-8 pt-6 border-t">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              © {year} CardFolio. All rights reserved.
+              © {year} TBKM. All rights reserved.
             </p>
             <div className="flex items-center space-x-4">
               <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
