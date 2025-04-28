@@ -27,7 +27,8 @@ export const useNFCCards = () => {
         .select();
 
       if (error) throw error;
-      const activationCode: string = data;
+      // Fixed: Ensure we correctly type the activation code as string
+      const activationCode = data as string;
 
       const { data: nfcCard, error: createError } = await supabase
         .from('nfc_cards')

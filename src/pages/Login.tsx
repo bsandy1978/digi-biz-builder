@@ -1,11 +1,12 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/components/ui/use-toast";
 import GoogleLoginButton from "@/components/ui/GoogleLoginButton";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -18,7 +19,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   // If user is already authenticated, redirect to dashboard
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       navigate("/dashboard");
     }
@@ -29,10 +30,36 @@ const Login = () => {
     setIsSubmitting(true);
     
     try {
+      console.log('Submitting login form with email:', email); // Add logging
       await login(email, password);
-      navigate("/dashboard");
+      // If login is successful, navigate will happen automatically due to the useEffect above
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login error caught in form:", error);
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: "Please check your credentials and try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle demo login for test accounts
+  const handleDemoLogin = async (demoEmail: string) => {
+    setEmail(demoEmail);
+    setPassword("password");
+    try {
+      setIsSubmitting(true);
+      console.log('Using demo credentials:', demoEmail); // Add logging
+      await login(demoEmail, "password");
+    } catch (error) {
+      console.error("Demo login error:", error);
+      toast({
+        variant: "destructive",
+        title: "Demo login failed",
+        description: "Please try again or contact support.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -107,10 +134,26 @@ const Login = () => {
                   )}
                 </Button>
                 <div className="mt-4 text-center text-sm">
-                  For demo purposes, use:
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    <div>User: user@example.com / password</div>
-                    <div>Admin: admin@example.com / password</div>
+                  For demo purposes, click:
+                  <div className="mt-1 flex space-x-2 justify-center">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleDemoLogin("user@example.com")}
+                      disabled={isSubmitting}
+                      type="button"
+                    >
+                      User Demo
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleDemoLogin("admin@example.com")}
+                      disabled={isSubmitting}
+                      type="button"
+                    >
+                      Admin Demo
+                    </Button>
                   </div>
                 </div>
               </form>
