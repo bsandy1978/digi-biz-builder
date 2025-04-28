@@ -22,19 +22,20 @@ export const useNFCCards = () => {
 
   const generateCard = useMutation({
     mutationFn: async (nfcId?: string) => {
-      const { data, error } = await supabase
+      // First, get a new activation code
+      const { data: activationCode, error } = await supabase
         .rpc('generate_activation_code')
         .select();
 
       if (error) throw error;
-      // Fixed: Ensure we correctly type the activation code as string
-      const activationCode = data as string;
-
+      
+      // Create a new card with the generated activation code
       const { data: nfcCard, error: createError } = await supabase
         .from('nfc_cards')
         .insert({
           nfc_id: nfcId || null,
-          activation_code: activationCode,
+          activation_code: activationCode as string, // Fix: Properly cast the activation code to string
+          status: 'unclaimed'
         })
         .select()
         .single();
