@@ -10,8 +10,13 @@ import { getCardsByUserId, BusinessCard } from "@/data/mockData";
 import CardPreview from "@/components/cards/CardPreview";
 
 const Dashboard = () => {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, profile, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
+  
+  // Get user display name
+  const userDisplayName = profile ? 
+    `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 
+    user?.email?.split('@')[0] || '';
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -36,7 +41,7 @@ const Dashboard = () => {
       <div className="space-y-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.name}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Welcome back, {userDisplayName}</h1>
             <p className="text-muted-foreground">
               Here's an overview of your digital business cards
             </p>

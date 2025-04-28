@@ -13,8 +13,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { getInitials } from "@/lib/cardUtils";
 
 const Navbar = () => {
-  const { user, isAuthenticated, logout, isAdmin } = useAuth();
+  const { user, profile, isAuthenticated, logout, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Get user display name from profile
+  const userDisplayName = profile ? 
+    `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 
+    user?.email?.split('@')[0] || '';
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -50,8 +55,8 @@ const Navbar = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.avatar} alt={user?.name} />
-                      <AvatarFallback>{getInitials(user?.name || '')}</AvatarFallback>
+                      <AvatarImage src={profile?.avatar_url || undefined} alt={userDisplayName} />
+                      <AvatarFallback>{getInitials(userDisplayName)}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>

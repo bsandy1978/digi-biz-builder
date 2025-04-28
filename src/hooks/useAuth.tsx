@@ -41,7 +41,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
 
-    setProfile(data);
+    // Ensure role is cast to the correct type
+    if (data && (data.role === 'admin' || data.role === 'user')) {
+      setProfile(data as Profile);
+    } else if (data) {
+      // Default to user role if role is invalid
+      setProfile({
+        ...data,
+        role: 'user' 
+      } as Profile);
+    }
   };
 
   useEffect(() => {

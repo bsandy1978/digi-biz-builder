@@ -22,7 +22,7 @@ export const useCards = (userId?: string) => {
   });
 
   const createCard = useMutation({
-    mutationFn: async (card: Partial<Card>) => {
+    mutationFn: async (card: Partial<Card> & { name: string }) => {
       const { data, error } = await supabase
         .from('cards')
         .insert([card])
@@ -49,7 +49,7 @@ export const useCards = (userId?: string) => {
   });
 
   const updateCard = useMutation({
-    mutationFn: async (card: Partial<Card>) => {
+    mutationFn: async (card: Partial<Card> & { id: string }) => {
       const { data, error } = await supabase
         .from('cards')
         .update(card)

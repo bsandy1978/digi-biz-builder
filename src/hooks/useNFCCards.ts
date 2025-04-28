@@ -27,14 +27,14 @@ export const useNFCCards = () => {
         .select();
 
       if (error) throw error;
-      const activationCode = data;
+      const activationCode: string = data;
 
       const { data: nfcCard, error: createError } = await supabase
         .from('nfc_cards')
-        .insert([{
-          nfc_id: nfcId,
+        .insert({
+          nfc_id: nfcId || null,
           activation_code: activationCode,
-        }])
+        })
         .select()
         .single();
 
