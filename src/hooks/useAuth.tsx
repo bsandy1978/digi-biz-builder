@@ -1,169 +1,165 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from "@/components/ui/use-toast";
+import { Profile } from '@/types/database';
 
-// Define the user type
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  role: 'user' | 'admin';
-  nfcCardId?: string;
-}
-
-// Define the auth context type
 interface AuthContextType {
   user: User | null;
+  profile: Profile | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   googleLogin: () => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   isAdmin: boolean;
   activateNFCCard: (nfcCode: string) => Promise<void>;
 }
 
-// Create the auth context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Auth provider props type
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Create the auth provider
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if the user is already logged in
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+  // Fetch user profile
+  const fetchProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return;
     }
-    setLoading(false);
+
+    setProfile(data);
+  };
+
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        await fetchProfile(session.user.id);
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  // Mock login function
   const login = async (email: string, password: string) => {
     try {
-      setLoading(true);
-      // Simulating API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      if (email === 'admin@example.com' && password === 'password') {
-        const user: User = {
-          id: '1',
-          name: 'Admin User',
-          email: 'admin@example.com',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
-          role: 'admin'
-        };
-        setUser(user);
-        localStorage.setItem('user', JSON.stringify(user));
-        toast({
-          title: "Login successful",
-          description: "Welcome back, Admin!",
-        });
-      } else if (email === 'user@example.com' && password === 'password') {
-        const user: User = {
-          id: '2',
-          name: 'Regular User',
-          email: 'user@example.com',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user',
-          role: 'user'
-        };
-        setUser(user);
-        localStorage.setItem('user', JSON.stringify(user));
-        toast({
-          title: "Login successful",
-          description: "Welcome back!",
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Login failed",
-          description: "Invalid email or password",
-        });
-      }
-    } catch (error) {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Login successful",
+        description: "Welcome back!",
+      });
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Login failed",
-        description: "Something went wrong",
+        description: error.message,
       });
-    } finally {
-      setLoading(false);
+      throw error;
     }
   };
 
-  // Mock Google login function
   const googleLogin = async () => {
     try {
-      setLoading(true);
-      // Simulating Google login API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const user: User = {
-        id: '2',
-        name: 'Google User',
-        email: 'google@example.com',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=google',
-        role: 'user'
-      };
-      
-      setUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      toast({
-        title: "Google login successful",
-        description: "Welcome back!",
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
       });
-    } catch (error) {
+
+      if (error) throw error;
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Google login failed",
-        description: "Something went wrong",
+        description: error.message,
       });
-    } finally {
-      setLoading(false);
+      throw error;
     }
   };
 
-  // Logout function
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-    toast({
-      title: "Logout successful",
-      description: "You have been logged out",
-    });
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Logout failed",
+        description: error.message,
+      });
+    }
   };
 
-  // Mock NFC card activation function
-  const activateNFCCard = async (nfcCode: string) => {
+  const activateNFCCard = async (activationCode: string) => {
+    if (!user) throw new Error("Must be logged in to activate a card");
+
     try {
-      setLoading(true);
-      // Simulating API call to validate and activate NFC card
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      if (nfcCode.length !== 8) {
-        throw new Error("Invalid NFC code");
+      const { data: nfcCard, error: fetchError } = await supabase
+        .from('nfc_cards')
+        .select('*')
+        .eq('activation_code', activationCode)
+        .eq('status', 'unclaimed')
+        .single();
+
+      if (fetchError || !nfcCard) {
+        throw new Error("Invalid or already claimed activation code");
       }
 
-      if (user) {
-        const updatedUser = {
-          ...user,
-          nfcCardId: nfcCode,
-        };
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-      }
-    } catch (error) {
+      const { error: updateError } = await supabase
+        .from('nfc_cards')
+        .update({ 
+          user_id: user.id,
+          status: 'claimed'
+        })
+        .eq('id', nfcCard.id);
+
+      if (updateError) throw updateError;
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Activation failed",
+        description: error.message,
+      });
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -171,12 +167,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        profile,
         loading,
         login,
         googleLogin,
         logout,
         isAuthenticated: !!user,
-        isAdmin: user?.role === 'admin',
+        isAdmin: profile?.role === 'admin',
         activateNFCCard,
       }}
     >
@@ -185,7 +182,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
-// Create the auth hook
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {

@@ -9,13 +9,143 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      cards: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          company: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          job_title: string | null
+          name: string
+          phone: string | null
+          slug: string | null
+          social_links: Json | null
+          theme: string | null
+          updated_at: string | null
+          user_id: string | null
+          views: number | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          job_title?: string | null
+          name: string
+          phone?: string | null
+          slug?: string | null
+          social_links?: Json | null
+          theme?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          views?: number | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          job_title?: string | null
+          name?: string
+          phone?: string | null
+          slug?: string | null
+          social_links?: Json | null
+          theme?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          views?: number | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      nfc_cards: {
+        Row: {
+          activation_code: string
+          card_id: string | null
+          created_at: string | null
+          id: string
+          nfc_id: string | null
+          status: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          activation_code: string
+          card_id?: string | null
+          created_at?: string | null
+          id?: string
+          nfc_id?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          activation_code?: string
+          card_id?: string | null
+          created_at?: string | null
+          id?: string
+          nfc_id?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nfc_cards_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_activation_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
