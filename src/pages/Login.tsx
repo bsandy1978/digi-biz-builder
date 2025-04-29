@@ -90,7 +90,13 @@ const Login = () => {
       // Create user account
       const { error: userError } = await supabase.auth.signUp({
         email: "user@example.com",
-        password: "password"
+        password: "password",
+        options: {
+          data: {
+            first_name: "Demo",
+            last_name: "User"
+          }
+        }
       });
       
       if (userError) throw userError;
@@ -98,7 +104,13 @@ const Login = () => {
       // Create admin account
       const { error: adminError } = await supabase.auth.signUp({
         email: "admin@example.com",
-        password: "password"
+        password: "password",
+        options: {
+          data: {
+            first_name: "Demo",
+            last_name: "Admin"
+          }
+        }
       });
       
       if (adminError) throw adminError;

@@ -24,13 +24,11 @@ export const useNFCCards = () => {
     mutationFn: async (nfcId?: string) => {
       // First, get a new activation code
       const { data, error } = await supabase
-        .rpc('generate_activation_code')
-        .select();
+        .rpc('generate_activation_code');
 
       if (error) throw error;
       
-      // Convert the activation code to string properly
-      // The RPC function returns data that needs proper type handling
+      // Convert the activation code properly - this is the fix for the TypeScript error
       const activationCode = data as unknown as string;
       
       // Create a new card with the generated activation code
@@ -38,7 +36,7 @@ export const useNFCCards = () => {
         .from('nfc_cards')
         .insert({
           nfc_id: nfcId || null,
-          activation_code: activationCode, // Now using the properly typed variable
+          activation_code: activationCode,
           status: 'unclaimed'
         })
         .select()
@@ -63,7 +61,7 @@ export const useNFCCards = () => {
     },
   });
 
-  // New function for checking and activating NFC cards without authentication
+  // Function for checking and activating NFC cards without authentication
   const checkCardActivation = async (activationCode: string): Promise<NFCCard | null> => {
     try {
       const { data, error } = await supabase
