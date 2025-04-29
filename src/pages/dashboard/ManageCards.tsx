@@ -38,7 +38,8 @@ const ManageCards = () => {
     setGeneratingCard(true);
     
     try {
-      await generateCard.mutateAsync();
+      // Pass undefined to make it clear we're intentionally not providing an NFC ID
+      await generateCard.mutateAsync(undefined);
     } catch (error) {
       console.error("Error generating card:", error);
     } finally {
