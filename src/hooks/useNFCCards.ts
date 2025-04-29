@@ -63,9 +63,32 @@ export const useNFCCards = () => {
     },
   });
 
+  // New function for checking and activating NFC cards without authentication
+  const checkCardActivation = async (activationCode: string): Promise<NFCCard | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('nfc_cards')
+        .select('*')
+        .eq('activation_code', activationCode)
+        .eq('status', 'unclaimed')
+        .single();
+
+      if (error) {
+        console.error("Error checking card:", error);
+        return null;
+      }
+
+      return data as NFCCard;
+    } catch (error) {
+      console.error("Error in card activation check:", error);
+      return null;
+    }
+  };
+
   return {
     nfcCards,
     isLoading,
     generateCard,
+    checkCardActivation,
   };
 };

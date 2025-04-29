@@ -173,6 +173,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .eq('id', nfcCard.id);
 
       if (updateError) throw updateError;
+      
+      toast({
+        title: "Card Activated",
+        description: "Your NFC card has been successfully linked to your account.",
+      });
     } catch (error: any) {
       toast({
         variant: "destructive",

@@ -9,12 +9,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { useNFCCards } from "@/hooks/useNFCCards";
 
 const ActivateNFC = () => {
   const [activationCode, setActivationCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { activateNFCCard } = useAuth();
+  const { checkCardActivation } = useNFCCards();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,16 +31,38 @@ const ActivateNFC = () => {
         throw new Error("Please enter a valid activation code (format: CARD-XXXXXX)");
       }
 
-      await activateNFCCard(activationCode);
+      // Check if card is valid and unclaimed
+      const card = await checkCardActivation(activationCode);
+      
+      if (!card) {
+        throw new Error("Invalid or already claimed activation code");
+      }
+
+      // Store the activation code in localStorage temporarily
+      localStorage.setItem('pendingActivationCode', activationCode);
+      localStorage.setItem('pendingCardId', card.id);
+
       toast({
-        title: "Card Claimed Successfully!",
-        description: "Your digital business card has been activated. You can now customize it.",
+        title: "Card Verified Successfully!",
+        description: "Now, please create an account to link this card to your profile.",
       });
-      navigate("/editor/new");
+
+      // If user is already logged in, claim card automatically
+      if (isAuthenticated) {
+        await activateNFCCard(activationCode);
+        toast({
+          title: "Card Claimed Successfully!",
+          description: "Your digital business card has been activated.",
+        });
+        navigate("/editor/new");
+      } else {
+        // Navigate to signup page to complete the process
+        navigate("/signup");
+      }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Activation Failed",
+        title: "Verification Failed",
         description: error instanceof Error ? error.message : "Invalid or already claimed activation code. Please try again.",
       });
     } finally {
@@ -58,10 +83,10 @@ const ActivateNFC = () => {
                 <path d="M15 12v3m-3-3v3m-3-3v3" />
                 <rect width="14" height="18" x="5" y="3" rx="2" />
               </svg>
-              Claim Your Business Card
+              Verify Your Business Card
             </CardTitle>
             <CardDescription>
-              Enter your card's activation code to claim and set up your digital profile
+              Enter your card's activation code to verify and claim your digital profile
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -90,10 +115,10 @@ const ActivateNFC = () => {
                 {isSubmitting ? (
                   <>
                     <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-b-transparent"></span>
-                    Claiming Card...
+                    Verifying Card...
                   </>
                 ) : (
-                  "Claim Your Card"
+                  "Verify & Continue"
                 )}
               </Button>
             </form>

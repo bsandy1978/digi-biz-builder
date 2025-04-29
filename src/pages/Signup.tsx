@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import GoogleLoginButton from "@/components/ui/GoogleLoginButton";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CheckCircle } from "lucide-react";
 
 const Signup = () => {
   const [firstName, setFirstName] = useState("");
@@ -17,7 +19,23 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingActivationCode, setPendingActivationCode] = useState<string | null>(null);
+  const [pendingCardId, setPendingCardId] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Check if there's a pending card activation
+  useEffect(() => {
+    const storedActivationCode = localStorage.getItem('pendingActivationCode');
+    const storedCardId = localStorage.getItem('pendingCardId');
+    
+    if (storedActivationCode) {
+      setPendingActivationCode(storedActivationCode);
+    }
+    
+    if (storedCardId) {
+      setPendingCardId(storedCardId);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,10 +56,43 @@ const Signup = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Account created",
-        description: "You can now log in with your credentials.",
-      });
+      // If there's a pending card activation, link it to the user
+      if (data.user && pendingActivationCode) {
+        try {
+          const { error: cardError } = await supabase
+            .from('nfc_cards')
+            .update({ 
+              user_id: data.user.id,
+              status: 'claimed'
+            })
+            .eq('activation_code', pendingActivationCode);
+
+          if (cardError) {
+            console.error("Error claiming NFC card:", cardError);
+            toast({
+              variant: "destructive",
+              title: "Card linking failed",
+              description: "Your account was created but we couldn't link your NFC card. Please try activating it again.",
+            });
+          } else {
+            // Clear stored activation data
+            localStorage.removeItem('pendingActivationCode');
+            localStorage.removeItem('pendingCardId');
+            
+            toast({
+              title: "Account created with NFC card",
+              description: "Your account is created and your NFC card is now linked to your profile.",
+            });
+          }
+        } catch (cardError) {
+          console.error("Error processing card linking:", cardError);
+        }
+      } else {
+        toast({
+          title: "Account created",
+          description: "You can now log in with your credentials.",
+        });
+      }
 
       // Redirect to login page
       navigate("/login");
@@ -69,6 +120,15 @@ const Signup = () => {
               <CardDescription className="text-center">
                 Enter your information to create your account
               </CardDescription>
+              
+              {pendingActivationCode && (
+                <Alert className="bg-green-50 border-green-200">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <AlertDescription>
+                    NFC card is ready to be linked to your new account
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">

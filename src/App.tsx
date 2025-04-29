@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import Index from "./pages/Index";
@@ -28,7 +28,9 @@ const App = () => (
           <Sonner />
           <AnimatePresence mode="wait">
             <Routes>
-              <Route path="/" element={<Index />} />
+              {/* Redirect root to NFC activation as the primary entry point */}
+              <Route path="/" element={<Navigate to="/activate-nfc" replace />} />
+              <Route path="/activate-nfc" element={<ActivateNFC />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/dashboard" element={<Dashboard />} />
@@ -36,7 +38,7 @@ const App = () => (
               <Route path="/editor/:id" element={<Editor />} />
               <Route path="/card/:slug" element={<ViewCard />} />
               <Route path="/admin" element={<Admin />} />
-              <Route path="/activate-nfc" element={<ActivateNFC />} />
+              <Route path="/landing" element={<Index />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>
