@@ -10,11 +10,15 @@ import { toast } from "@/components/ui/use-toast";
 import GoogleLoginButton from "@/components/ui/GoogleLoginButton";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDemoInstructions, setShowDemoInstructions] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -30,7 +34,7 @@ const Login = () => {
     setIsSubmitting(true);
     
     try {
-      console.log('Submitting login form with email:', email); // Add logging
+      console.log('Submitting login form with email:', email);
       await login(email, password);
       // If login is successful, navigate will happen automatically due to the useEffect above
     } catch (error) {
@@ -47,18 +51,67 @@ const Login = () => {
 
   // Handle demo login for test accounts
   const handleDemoLogin = async (demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword("password");
     try {
       setIsSubmitting(true);
-      console.log('Using demo credentials:', demoEmail); // Add logging
-      await login(demoEmail, "password");
+      console.log('Using demo credentials:', demoEmail);
+      
+      // First check if the demo account exists
+      const { data } = await supabase.auth.signInWithPassword({
+        email: demoEmail,
+        password: "password"
+      });
+      
+      if (data.user) {
+        // User exists, proceed with login
+        await login(demoEmail, "password");
+      } else {
+        // User doesn't exist, show instructions
+        setShowDemoInstructions(true);
+        toast({
+          title: "Demo account not found",
+          description: "Please create the demo accounts first using the instructions below.",
+        });
+      }
     } catch (error) {
       console.error("Demo login error:", error);
+      setShowDemoInstructions(true);
+      toast({
+        title: "Demo accounts not set up",
+        description: "Please create the demo accounts first using the instructions below.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const createDemoAccounts = async () => {
+    setIsSubmitting(true);
+    try {
+      // Create user account
+      const { error: userError } = await supabase.auth.signUp({
+        email: "user@example.com",
+        password: "password"
+      });
+      
+      if (userError) throw userError;
+      
+      // Create admin account
+      const { error: adminError } = await supabase.auth.signUp({
+        email: "admin@example.com",
+        password: "password"
+      });
+      
+      if (adminError) throw adminError;
+      
+      toast({
+        title: "Demo accounts created",
+        description: "The demo accounts have been created. Please check your Supabase dashboard to confirm the email addresses or disable email confirmation in your Supabase settings.",
+      });
+    } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Demo login failed",
-        description: "Please try again or contact support.",
+        title: "Failed to create demo accounts",
+        description: error.message,
       });
     } finally {
       setIsSubmitting(false);
@@ -79,6 +132,15 @@ const Login = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {showDemoInstructions && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Demo accounts don't exist yet. Click the "Create Demo Accounts" button below to create them.
+                  </AlertDescription>
+                </Alert>
+              )}
+            
               <div className="space-y-2">
                 <GoogleLoginButton className="w-full" />
               </div>
@@ -134,7 +196,7 @@ const Login = () => {
                   )}
                 </Button>
                 <div className="mt-4 text-center text-sm">
-                  For demo purposes, click:
+                  For demo purposes:
                   <div className="mt-1 flex space-x-2 justify-center">
                     <Button 
                       variant="outline" 
@@ -155,6 +217,16 @@ const Login = () => {
                       Admin Demo
                     </Button>
                   </div>
+                  {showDemoInstructions && (
+                    <Button
+                      variant="secondary"
+                      className="mt-3 w-full"
+                      disabled={isSubmitting}
+                      onClick={createDemoAccounts}
+                    >
+                      Create Demo Accounts
+                    </Button>
+                  )}
                 </div>
               </form>
             </CardContent>
